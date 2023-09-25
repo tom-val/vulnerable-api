@@ -3,6 +3,8 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using VulnerableAPI.Database;
+using VulnerableAPI.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,6 +56,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         }
     };
 });
+builder.Services.Configure<SqliteOptions>(builder.Configuration.GetSection(SqliteOptions.ConfigSection));
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddEntityFrameworkSqlite().AddDbContext<DatabaseContext>();
+builder.Services.AddTransient<CreatedDbContext>();
 
 var app = builder.Build();
 
