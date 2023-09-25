@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -56,12 +57,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
@@ -69,5 +66,19 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.Use(async (context, next) =>
+{
+    var token = await context.GetTokenAsync("access_token");
+    if (token is not null)
+    {
+        var jwt = new JwtSecurityToken(token);
+        if (jwt.SignatureAlgorithm is SecurityAlgorithms.None)
+        {
+            context.Response.Headers.Add("BrokenAuthenticationFlag", builder.Configuration["Flags:BrokenAuthentication"]);
+        }
+    }
+    await next.Invoke();
+});
 
 app.Run();
