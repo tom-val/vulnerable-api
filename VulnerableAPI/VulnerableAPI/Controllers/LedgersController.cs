@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SinKien.IBAN4Net;
 using VulnerableAPI.Database;
 using VulnerableAPI.Database.Models;
 
@@ -31,14 +32,28 @@ public class LedgersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create()
     {
+        var iban = new IbanBuilder()
+            .CountryCode(CountryCode.GetCountryCode( "LT" ))
+            .BankCode("654")
+            .AccountNumber(GenerateRandomAccountNumber())
+            .Build();
         var ledgerId = Guid.NewGuid();
         _context.Ledgers.Add(new Ledger
         {
             Id = Guid.NewGuid(),
             Currency = Currency.EUR,
-            Balance = 100
+            Balance = 100,
+            Iban = iban.ToString()
         });
         await _context.SaveChangesAsync();
         return Ok(ledgerId);
+    }
+
+    private string GenerateRandomAccountNumber()
+    {
+        var number = new StringBuilder();
+        var random = new Random();
+        number.Append(random.Next(100, 999));
+        return number.ToString();
     }
 }

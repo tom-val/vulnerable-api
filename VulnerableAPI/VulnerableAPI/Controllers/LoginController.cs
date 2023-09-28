@@ -3,25 +3,37 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using VulnerableAPI.Database;
 
 namespace VulnerableAPI.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("v2/login")]
 public class LoginController : ControllerBase
 {
     private readonly IConfiguration _config;
-    public LoginController(IConfiguration config)
+    private readonly DatabaseContext _context;
+    public LoginController(CreatedDbContext context, IConfiguration config)
     {
         _config = config;
+        _context = context.Context;
     }
 
     [AllowAnonymous]
     [HttpPost]
-    public ActionResult Login([FromBody] UserLogin userLogin)
+    public async Task<ActionResult> Login([FromBody] UserLogin userLogin)
     {
-        if (userLogin.Username == "admin" && userLogin.Password == "test")
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == userLogin.Email);
+
+        if (user is null)
+        {
+            return NotFound("Incorrect password or user not found.");
+        }
+
+        var passwordHash = PasswordHasher.ComputeHash(userLogin.Password, user.PasswordSalt);
+        if (passwordHash == user.PasswordHash)
         {
             var token = GenerateToken("admin");
             return Ok(token);
@@ -50,4 +62,4 @@ public class LoginController : ControllerBase
     }
 }
 
-public record UserLogin(string Username, string Password);
+public record UserLogin(string Email, string Password);

@@ -8,6 +8,7 @@ namespace VulnerableAPI.Database;
 public class DatabaseContext : DbContext
 {
     public DbSet<Ledger> Ledgers { get; set; }
+    public DbSet<User> Users { get; set; }
     private IHttpContextAccessor _httpContextAccessor { get; }
     public string DatabasesLocation { get; }
 
@@ -16,20 +17,27 @@ public class DatabaseContext : DbContext
         DatabasesLocation = options.Value.DatabasesLocation;
         _httpContextAccessor = httpContextAccessor;
     }
-
-    // The following configures EF to create a Sqlite database file in the
-    // special "local" folder for your platform.
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        var context = _httpContextAccessor.HttpContext;
-        if (context is not null)
+        var identity = _httpContextAccessor.HttpContext?.User.Identity;
+        if (identity is not null && identity.IsAuthenticated)
         {
-            var identity = context.User.Identity.Name;
-            options.UseSqlite($"Data Source={Path.Join(DatabasesLocation, $"{identity}.db")}");
+            options.UseSqlite($"Data Source={Path.Join(DatabasesLocation, $"{identity.Name}.db")}");
         }
         else
         {
             options.UseSqlite($"Data Source={Path.Join(DatabasesLocation, "admin.db")}");
         }
+    }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
+
+        builder.Entity<User>()
+            .HasIndex(u => u.Id)
+            .IsUnique();
     }
 }
