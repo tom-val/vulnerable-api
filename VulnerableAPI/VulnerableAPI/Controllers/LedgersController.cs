@@ -14,9 +14,9 @@ namespace VulnerableAPI.Controllers;
 public class LedgersController : ControllerBase
 {
     private readonly UserDbContext _context;
-    public LedgersController(CreatedDbContext context)
+    public LedgersController(UserDbContext context)
     {
-        _context = context.Context;
+        _context = context;
     }
 
     [Authorize]
@@ -24,7 +24,9 @@ public class LedgersController : ControllerBase
     public Task<List<LedgerDto>> Get()
     {
         return _context.Ledgers
-            .Select(l => MapLedger(l)).ToListAsync();
+            .Where(l => l.User.Email == User.GetEmail())
+            .Select(l => MapLedger(l))
+            .ToListAsync();
     }
 
     [Authorize]
@@ -32,6 +34,7 @@ public class LedgersController : ControllerBase
     public async Task<IActionResult> Get(Guid ledgerId)
     {
         var ledger = await _context.Ledgers
+            .Where(l => l.User.Email == User.GetEmail())
             .Select(l => MapLedger(l))
             .FirstOrDefaultAsync(l => l.Id == ledgerId);
 
@@ -50,33 +53,19 @@ public class LedgersController : ControllerBase
         var userEmail = User.Claims.First(c => c.Type == ClaimTypes.Email).Value;
         var user = await _context.Users.FirstAsync(u => u.Email == userEmail);
 
-        var iban = new IbanBuilder()
-            .CountryCode(CountryCode.GetCountryCode( "LT" ))
-            .BankCode("654")
-            .AccountNumber(GenerateRandomAccountNumber())
-            .Build();
-
         var ledgerId = Guid.NewGuid();
         var ledger = new Ledger
         {
             Id = Guid.NewGuid(),
             Currency = Currency.EUR,
             Balance = 0,
-            Iban = iban.ToString(),
+            Iban = IbanGenerator.GenerateIban(),
             UserId = user.Id
         };
         _context.Ledgers.Add(ledger);
 
         await _context.SaveChangesAsync();
         return Created( $"ledgers/{ledgerId}",MapLedger(ledger));
-    }
-
-    private string GenerateRandomAccountNumber()
-    {
-        var number = new StringBuilder();
-        var random = new Random();
-        number.Append(random.Next(100, 999));
-        return number.ToString();
     }
 
     public record LedgerDto(Guid Id, Currency Currency, double Balance, string Iban);
