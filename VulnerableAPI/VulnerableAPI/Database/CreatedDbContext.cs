@@ -4,8 +4,8 @@ namespace VulnerableAPI.Database;
 
 public class CreatedDbContext
 {
-    public  readonly DatabaseContext Context;
-    public CreatedDbContext(DatabaseContext context)
+    public  readonly UserDbContext Context;
+    public CreatedDbContext(UserDbContext context)
     {
         Context = context;
         //TODO create and migrate while creating new user?

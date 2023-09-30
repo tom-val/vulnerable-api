@@ -1,7 +1,9 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using VulnerableAPI.Database;
 using VulnerableAPI.Options;
@@ -10,7 +12,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(x =>
+{
+    x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -58,7 +64,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 });
 builder.Services.Configure<SqliteOptions>(builder.Configuration.GetSection(SqliteOptions.ConfigSection));
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddEntityFrameworkSqlite().AddDbContext<DatabaseContext>();
+builder.Services.AddEntityFrameworkSqlite()
+    .AddDbContext<UserDbContext>()
+    .AddDbContext<AdminDbContext>();
 builder.Services.AddTransient<CreatedDbContext>();
 
 var app = builder.Build();
@@ -86,5 +94,9 @@ app.Use(async (context, next) =>
     }
     await next.Invoke();
 });
+
+using var scope = app.Services.CreateScope();
+var context = scope.ServiceProvider.GetRequiredService<AdminDbContext>();
+context.Database.Migrate();
 
 app.Run();

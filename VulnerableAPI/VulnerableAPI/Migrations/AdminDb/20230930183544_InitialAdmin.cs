@@ -1,12 +1,11 @@
-﻿using System;
+﻿#nullable disable
+
 using Microsoft.EntityFrameworkCore.Migrations;
 
-#nullable disable
-
-namespace VulnerableAPI.Migrations
+namespace VulnerableAPI.Migrations.AdminDb
 {
     /// <inheritdoc />
-    public partial class User : Migration
+    public partial class InitialAdmin : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -27,6 +26,18 @@ namespace VulnerableAPI.Migrations
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Id",
+                table: "Users",
+                column: "Id",
+                unique: true);
         }
 
         /// <inheritdoc />

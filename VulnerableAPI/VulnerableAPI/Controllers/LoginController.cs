@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using VulnerableAPI.Database;
+using VulnerableAPI.Database.Models;
 
 namespace VulnerableAPI.Controllers;
 
@@ -14,11 +15,11 @@ namespace VulnerableAPI.Controllers;
 public class LoginController : ControllerBase
 {
     private readonly IConfiguration _config;
-    private readonly DatabaseContext _context;
-    public LoginController(CreatedDbContext context, IConfiguration config)
+    private readonly AdminDbContext _context;
+    public LoginController(AdminDbContext context, IConfiguration config)
     {
         _config = config;
-        _context = context.Context;
+        _context = context;
     }
 
     [AllowAnonymous]
@@ -35,28 +36,27 @@ public class LoginController : ControllerBase
         var passwordHash = PasswordHasher.ComputeHash(userLogin.Password, user.PasswordSalt);
         if (passwordHash == user.PasswordHash)
         {
-            var token = GenerateToken("admin");
+            var token = GenerateToken(user);
             return Ok(token);
         }
 
         return NotFound("Incorrect password or user not found.");
     }
 
-    private string GenerateToken(string username)
+    private string GenerateToken(User user)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
         var claims = new[]
         {
-            new Claim(ClaimTypes.Name,username),
-            //new Claim(ClaimTypes.Role,user.Role)
+            new Claim(ClaimTypes.Email,user.Email),
+            new Claim("please_do_not_change_thanks", Convert.ToBase64String(Encoding.UTF8.GetBytes(user.Id.ToString())))
         };
         var token = new JwtSecurityToken(_config["Jwt:Issuer"],
             _config["Jwt:Audience"],
             claims,
             expires: DateTime.Now.AddMinutes(60),
             signingCredentials: credentials);
-
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }

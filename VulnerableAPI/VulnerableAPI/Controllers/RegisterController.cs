@@ -1,13 +1,10 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
 using VulnerableAPI.Database;
 using VulnerableAPI.Database.Models;
+using VulnerableAPI.Options;
 
 namespace VulnerableAPI.Controllers;
 
@@ -16,11 +13,14 @@ namespace VulnerableAPI.Controllers;
 public class RegisterController : ControllerBase
 {
     private readonly IConfiguration _config;
-    private readonly DatabaseContext _context;
-    public RegisterController(CreatedDbContext context, IConfiguration config)
+    private readonly AdminDbContext _context;
+    private readonly IOptions<SqliteOptions> _options;
+
+    public RegisterController(AdminDbContext context, IConfiguration config, IOptions<SqliteOptions> options)
     {
         _config = config;
-        _context = context.Context;
+        _context = context;
+        _options = options;
     }
 
     [AllowAnonymous]
@@ -44,15 +44,22 @@ public class RegisterController : ControllerBase
             PasswordHash = PasswordHasher.ComputeHash(userRegister.Password, salt),
             IsAdmin = false
         };
+
+        await using var dbContextTransaction = await _context.Database.BeginTransactionAsync();
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
         Response.Headers.Add("RegisterFlag", _config["Flags:RegisterFlag"]);
 
-        return Ok(new {userRegister.FirstName, userRegister.LastName, userRegister.Email});
+        var userContext = new UserDbContext(_options, user.Id);
+        await userContext.Database.MigrateAsync();
+        userContext.Users.Add(user);
+        await userContext.SaveChangesAsync();
+
+        await dbContextTransaction.CommitAsync();
+
+        return Ok(new { userRegister.FirstName, userRegister.LastName, userRegister.Email });
     }
 }
-
-
 
 public record UserRegister(string FirstName, string LastName, string Email, string Password);

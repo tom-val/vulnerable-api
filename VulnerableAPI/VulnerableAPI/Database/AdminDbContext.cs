@@ -5,29 +5,19 @@ using VulnerableAPI.Options;
 
 namespace VulnerableAPI.Database;
 
-public class DatabaseContext : DbContext
+public class AdminDbContext : DbContext
 {
-    public DbSet<Ledger> Ledgers { get; set; }
     public DbSet<User> Users { get; set; }
-    private IHttpContextAccessor _httpContextAccessor { get; }
     public string DatabasesLocation { get; }
 
-    public DatabaseContext(IOptions<SqliteOptions> options, IHttpContextAccessor httpContextAccessor)
+    public AdminDbContext(IOptions<SqliteOptions> options)
     {
         DatabasesLocation = options.Value.DatabasesLocation;
-        _httpContextAccessor = httpContextAccessor;
     }
+
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        var identity = _httpContextAccessor.HttpContext?.User.Identity;
-        if (identity is not null && identity.IsAuthenticated)
-        {
-            options.UseSqlite($"Data Source={Path.Join(DatabasesLocation, $"{identity.Name}.db")}");
-        }
-        else
-        {
-            options.UseSqlite($"Data Source={Path.Join(DatabasesLocation, "admin.db")}");
-        }
+        options.UseSqlite($"Data Source={Path.Join(DatabasesLocation, "admin.db")}");
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
