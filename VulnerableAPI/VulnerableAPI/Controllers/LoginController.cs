@@ -50,6 +50,7 @@ public class LoginController : ControllerBase
         var claims = new[]
         {
             new Claim(ClaimTypes.Email,user.Email),
+            new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
             new Claim("please_do_not_change_thanks", Convert.ToBase64String(Encoding.UTF8.GetBytes(user.Id.ToString())))
         };
         var token = new JwtSecurityToken(_config["Jwt:Issuer"],

@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -76,4 +77,4 @@ public class RegisterController : ControllerBase
     }
 }
 
-public record UserRegister(string FirstName, string LastName, string Email, string Password);
+public record UserRegister(string FirstName, string LastName, [EmailAddress] string Email, string Password);

@@ -1,3 +1,5 @@
+using VulnerableAPI.Database.Enums;
+
 namespace VulnerableAPI.Database.Models;
 
 public class Ledger
@@ -8,10 +10,4 @@ public class Ledger
     public required string Iban { get; set; }
     public required Guid UserId { get; set; }
     public User User { get; set; }
-}
-
-public enum Currency
-{
-    EUR,
-    USD
 }

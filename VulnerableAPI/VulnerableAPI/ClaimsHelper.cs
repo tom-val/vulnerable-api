@@ -8,4 +8,9 @@ public static class ClaimsHelper
     {
         return user.Claims.First(x => x.Type == ClaimTypes.Email).Value;
     }
+
+    public static Guid GetId(this ClaimsPrincipal user)
+    {
+        return Guid.Parse(user.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value);
+    }
 }

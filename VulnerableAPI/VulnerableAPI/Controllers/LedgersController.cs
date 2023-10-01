@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SinKien.IBAN4Net;
 using VulnerableAPI.Database;
+using VulnerableAPI.Database.Enums;
 using VulnerableAPI.Database.Models;
 
 namespace VulnerableAPI.Controllers;
@@ -50,6 +51,7 @@ public class LedgersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create()
     {
+        //TODO Add restrictions, 1 currency ledger from user
         var userEmail = User.Claims.First(c => c.Type == ClaimTypes.Email).Value;
         var user = await _context.Users.FirstAsync(u => u.Email == userEmail);
 

@@ -21,9 +21,9 @@ public class FriendsController : ControllerBase
     {
         return _context.Friends
             .Where(l => l.User.Email == User.GetEmail())
-            .Select(favorite => new FriendDto(favorite.Id, favorite.FriendUser.FirstName, favorite.User.Id, favorite.Name))
+            .Select(favorite => new FriendDto(favorite.Id, favorite.FriendUser.FirstName, favorite.FriendUser.Email, favorite.Name))
             .ToListAsync();
     }
 
-    public record FriendDto(Guid id, string FirstName, Guid UserId, string Name);
+    public record FriendDto(Guid id, string FirstName, string Email, string Name);
 }
