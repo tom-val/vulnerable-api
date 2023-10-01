@@ -53,6 +53,11 @@ public class MoneyRequestController : ControllerBase
             return NotFound();
         }
 
+        if (moneyRequest.Status != MoneyRequestStatus.Requested)
+        {
+            return BadRequest("Invalid money request status");
+        }
+
         await using var dbContextTransaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
         var moneyToLedger = _context.Ledgers.First(l => l.UserId == moneyRequest.RequestedById && l.Currency == moneyRequest.Currency);
         var requestedFromLedger = _context.Ledgers.First(l => l.UserId == moneyRequest.RequestedFromId && l.Currency == moneyRequest.Currency);
@@ -83,9 +88,15 @@ public class MoneyRequestController : ControllerBase
         var moneyRequest = await _context.MoneyRequests
             .Where(l => l.RequestedBy.Email == User.GetEmail())
             .FirstOrDefaultAsync(m => m.Id == moneyRequestId);
+
         if (moneyRequest is null)
         {
             return NotFound();
+        }
+
+        if (moneyRequest.Status != MoneyRequestStatus.Requested)
+        {
+            return BadRequest("Invalid money request status.");
         }
 
         moneyRequest.Status = MoneyRequestStatus.Declined;
@@ -97,7 +108,6 @@ public class MoneyRequestController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> RequestMoney([FromBody] CreateMoneyRequestDto requestDto)
     {
-        //TODO Could return friend balance here (find out which wrong)
         if (requestDto.RequestFromEmail == User.GetEmail())
         {
             return BadRequest("Cannot request money from yourself.");

@@ -10,4 +10,5 @@ public class Ledger
     public required string Iban { get; set; }
     public required Guid UserId { get; set; }
     public User User { get; set; }
+    public required double BalanceLimit { get; set; }
 }

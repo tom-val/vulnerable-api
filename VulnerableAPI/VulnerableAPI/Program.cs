@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using VulnerableAPI.Database;
 using VulnerableAPI.Options;
+using VulnerableAPI.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +20,10 @@ builder.Services.AddControllers().AddJsonOptions(x =>
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SchemaFilter<SwaggerSkipPropertyFilter>();
+});
 
 var validator = new JwtSecurityTokenHandler();
 var tokenValidationParameters = new TokenValidationParameters
