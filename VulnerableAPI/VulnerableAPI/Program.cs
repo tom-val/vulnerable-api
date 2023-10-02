@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using VulnerableAPI.Database;
 using VulnerableAPI.Options;
@@ -71,12 +72,26 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddEntityFrameworkSqlite()
     .AddDbContext<UserDbContext>()
     .AddDbContext<AdminDbContext>();
-builder.Services.AddTransient<CreatedDbContext>();
+builder.Services.AddDirectoryBrowser();
 
 var app = builder.Build();
 
+var fileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "files"));
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = fileProvider, RequestPath = "/files"
+});
+app.UseDirectoryBrowser(new DirectoryBrowserOptions
+{
+    FileProvider = fileProvider,
+    RequestPath = "/files"
+});
+
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.InjectJavascript("/files/swag/custom.js");
+});
 
 app.UseHttpsRedirection();
 
