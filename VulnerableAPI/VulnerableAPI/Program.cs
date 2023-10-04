@@ -1,11 +1,15 @@
+using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using VulnerableAPI;
 using VulnerableAPI.Database;
 using VulnerableAPI.Options;
 using VulnerableAPI.Swagger;
@@ -98,6 +102,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseRateLimiter();
+
 app.MapControllers();
 
 app.Use(async (context, next) =>
@@ -111,6 +117,24 @@ app.Use(async (context, next) =>
             context.Response.Headers.Add("BrokenAuthenticationFlag", builder.Configuration["Flags:BrokenAuthentication"]);
         }
     }
+    await next.Invoke();
+});
+
+var requestsCounts = new ConcurrentDictionary<string, FixedInterval>();
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity is not null && context.User.Identity.IsAuthenticated)
+    {
+        var user = context.User.GetEmail();
+        var fixedWindow = requestsCounts.GetOrAdd(user, (x) => new FixedInterval(TimeSpan.FromSeconds(5), 20));
+        var requestConforms = fixedWindow.Conforms();
+
+        if (!requestConforms)
+        {
+            context.Response.Headers.Add("UnrestrictedConsumptionNoRateLimiting", builder.Configuration["Flags:UnrestrictedConsumptionNoRateLimiting"]);
+        }
+    }
+
     await next.Invoke();
 });
 

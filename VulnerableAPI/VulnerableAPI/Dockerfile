@@ -8,7 +8,7 @@ WORKDIR /src/VulnerableAPI
 RUN dotnet restore
 
 COPY VulnerableAPI/. /src/VulnerableAPI/.
-RUN dotnet publish -o /app --no-self-contained --no-restore
+RUN dotnet publish -o /app --no-self-contained
 
 FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /app

@@ -26,10 +26,17 @@ public class LedgersController : ControllerBase
 
     [Authorize]
     [HttpGet]
-    public Task<List<LedgerDto>> Get()
+    public Task<List<LedgerDto>> Get([FromQuery] int page = 0, [FromQuery] int perPage = 100)
     {
+        if (perPage >  1000)
+        {
+            Response.Headers.Add("UnrestrictedConsumptionPagination", _config["Flags:UnrestrictedConsumptionPagination"]);
+        }
+
         return _context.Ledgers
             .Where(l => l.User.Email == User.GetEmail())
+            .Skip(page * perPage)
+            .Take(perPage)
             .Select(l => MapLedger(l))
             .ToListAsync();
     }
