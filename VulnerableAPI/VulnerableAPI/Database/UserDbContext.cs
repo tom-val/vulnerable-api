@@ -15,6 +15,7 @@ public class UserDbContext : DbContext
     public DbSet<Friend> Friends { get; set; }
     public DbSet<MoneyRequest> MoneyRequests { get; set; }
     public DbSet<Report> Reports { get; set; }
+    public DbSet<Referral> Referrals { get; set; }
     private IHttpContextAccessor? _httpContextAccessor { get; }
     public string DatabasesLocation { get; }
     private Guid? _userId { get; set; }

@@ -52,7 +52,7 @@ public class ReportsController : ControllerBase
         await _context.SaveChangesAsync();
 
         Response.Headers.Add("BrokenObjectPropertyAuthorizationSensitive", _config["Flags:BrokenObjectPropertyAuthorizationSensitive"]);
-        return Ok(new {Id = report.Id, ReportReason = report.ReportReason, ReportStatus = report.ReportStatus, RportedUser = reportedUser.FirstName, LastKnownLocation = "Vilnius"});
+        return Ok(new { report.Id, report.ReportReason, report.ReportStatus, RportedUser = reportedUser.FirstName, LastKnownLocation = "Vilnius"});
     }
 
     public record ReportUserDto(string ReportReason, string ReportUserEmail);
