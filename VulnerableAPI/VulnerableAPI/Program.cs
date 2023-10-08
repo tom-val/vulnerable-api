@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using VulnerableAPI;
 using VulnerableAPI.Database;
 using VulnerableAPI.Options;
@@ -27,6 +28,12 @@ builder.Services.AddControllers().AddJsonOptions(x =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v2",
+        Title = "Ledgers API",
+        Description = "Very secure ledgers API"
+    });
     c.SchemaFilter<SwaggerSkipPropertyFilter>();
 });
 
