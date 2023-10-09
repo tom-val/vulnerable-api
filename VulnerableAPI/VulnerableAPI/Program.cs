@@ -17,7 +17,10 @@ using VulnerableAPI.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Host.ConfigureLogging(logging =>
+{
+    logging.AddAWSProvider();
+});
 
 builder.Services.AddControllers().AddJsonOptions(x =>
 {
@@ -148,5 +151,8 @@ app.Use(async (context, next) =>
 using var scope = app.Services.CreateScope();
 var context = scope.ServiceProvider.GetRequiredService<AdminDbContext>();
 context.Database.Migrate();
+
+var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+logger.LogInformation("Starting application");
 
 app.Run();
