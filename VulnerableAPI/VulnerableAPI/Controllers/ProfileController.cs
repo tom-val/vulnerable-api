@@ -26,10 +26,20 @@ public class ProfileController : ControllerBase
     {
         var path = $"{_config["FilesLocation"]}/{User.GetId()}.jpg";
         var fileName = Path.GetFileName(path);
+
+        if (!System.IO.File.Exists(path))
+        {
+            return BadRequest("Cannot get picture before uploading.");
+        }
+
         var content = await System.IO.File.ReadAllBytesAsync(path);
         new FileExtensionContentTypeProvider().TryGetContentType(fileName, out string contentType);
 
-        string oneBigString = Encoding.ASCII.GetString(content);
+        var parsedString = Encoding.ASCII.GetString(content);
+        if (parsedString.Contains("VulnerableAPI"))
+        {
+            Response.Headers.Add("ServerSideForgery", _config["Flags:ServerSideForgery"]);
+        }
 
         return File(content, contentType, fileName);
     }
@@ -47,9 +57,9 @@ public class ProfileController : ControllerBase
                 return BadRequest("Cannot download image.");
             }
 
-            if (fileContent.Length > 1000000)
+            if (fileContent.Length > 2000000)
             {
-                return BadRequest("Max file size must be less than 1MB");
+                return BadRequest("Max file size must be less than 2MB.");
             }
 
             await System.IO.File.WriteAllBytesAsync($"{_config["FilesLocation"]}/{User.GetId()}.jpg", fileContent);
