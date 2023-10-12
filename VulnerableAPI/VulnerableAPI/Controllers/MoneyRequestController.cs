@@ -146,5 +146,5 @@ public class MoneyRequestController : ControllerBase
 
     public record MyMoneyRequestDto(Guid Id, MoneyRequestStatus Status, string RequestedFrom, string RequestReason);
     public record MoneyRequestFromMeDto(Guid Id, MoneyRequestStatus Status, string RequestedBy, string RequestReason);
-    public record CreateMoneyRequestDto([EmailAddress] string RequestFromEmail, double Amount, Currency Currency, string RequestReason);
+    public record CreateMoneyRequestDto([MaxLength(100)] [EmailAddress] string RequestFromEmail, double Amount, Currency Currency, [MaxLength(100)] string RequestReason);
 }

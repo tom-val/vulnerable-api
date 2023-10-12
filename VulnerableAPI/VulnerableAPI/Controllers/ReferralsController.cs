@@ -75,7 +75,7 @@ public class ReferralsController : ControllerBase
     }
 
     public record PointsDto(int Points);
-    public record ReferUserDto(string Name, [EmailAddress] string Email);
+    public record ReferUserDto([MaxLength(100)] string Name, [MaxLength(100)] [EmailAddress] string Email);
     public record ReferUserResponseDto(string Url);
     public record ReferralDto(string Name, string Email, bool OpenedLink);
 }

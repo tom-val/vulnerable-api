@@ -77,4 +77,4 @@ public class RegisterController : ControllerBase
     }
 }
 
-public record UserRegister(string FirstName, string LastName, [EmailAddress] string Email, string Password);
+public record UserRegister([MaxLength(100)] string FirstName, [MaxLength(100)] string LastName, [MaxLength(100)] [EmailAddress] string Email, [MaxLength(100)] string Password);

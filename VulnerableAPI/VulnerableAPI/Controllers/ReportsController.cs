@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -55,6 +56,6 @@ public class ReportsController : ControllerBase
         return Ok(new { report.Id, report.ReportReason, report.ReportStatus, RportedUser = reportedUser.FirstName, LastKnownLocation = "Vilnius"});
     }
 
-    public record ReportUserDto(string ReportReason, string ReportUserEmail);
+    public record ReportUserDto([MaxLength(500)] string ReportReason, [MaxLength(100)] string ReportUserEmail);
     public record ReportDto(Guid Id, string ReportReason, ReportStatus ReportStatus, string ReportedUser);
 }

@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.EntityFrameworkCore;
 using VulnerableAPI.Database;
 
 namespace VulnerableAPI.Controllers;
@@ -18,6 +19,40 @@ public class ProfileController : ControllerBase
         _context = context;
         _config = config;
         _logger = logger;
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> AboutMe()
+    {
+        var user = await _context.Users.FirstAsync(u => u.Email == User.GetEmail());
+        return Ok(new { user.FirstName, user.LastName, user.Email, user.IsAdmin });
+    }
+
+    [Authorize]
+    [HttpPut]
+    public async Task<IActionResult> Update([FromBody] UserUpdate updateProfileDto)
+    {
+        var result = await _context.Database.ExecuteSqlRawAsync(@$"
+            UPDATE users
+            SET firstName = ""{updateProfileDto.FirstName}"", lastName = ""{updateProfileDto.LastName}""
+            WHERE email = ""{User.GetEmail()}""");
+
+        await _context.SaveChangesAsync();
+
+        if (result == 1)
+        {
+            var user = await _context.Users.FirstAsync(u => u.Email == User.GetEmail());
+
+            if (user.IsAdmin)
+            {
+                Response.Headers.Add("SqlInjection", _config["Flags:SqlInjection"]);
+            }
+
+            return Ok(new { user.FirstName, user.LastName, user.Email, user.IsAdmin });
+        }
+
+        return BadRequest("Error while updating user.");
     }
 
     [Authorize]
@@ -86,4 +121,5 @@ public class ProfileController : ControllerBase
     }
 
     public record PictureDto(string Url);
+    public record UserUpdate(string FirstName, string LastName);
 }

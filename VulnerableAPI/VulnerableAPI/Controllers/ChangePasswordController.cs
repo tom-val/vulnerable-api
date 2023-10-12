@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -62,5 +63,5 @@ public class ChangePasswordController : ControllerBase
     }
 }
 
-public record UserChangePassword(string Email, string Password, string NewPassword);
-public record UserChangePasswordOld(string Email, string NewPassword);
+public record UserChangePassword(string Email, string Password, [MaxLength(100)] string NewPassword);
+public record UserChangePasswordOld(string Email, [MaxLength(100)] string NewPassword);
