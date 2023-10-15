@@ -5,6 +5,7 @@ using VulnerableAPI.Database;
 namespace VulnerableAPI.Controllers;
 
 [ApiController]
+[ApiExplorerSettings(IgnoreApi = true)]
 [Route("v2/admin")]
 public class AdminController : ControllerBase
 {
