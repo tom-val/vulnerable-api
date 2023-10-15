@@ -33,6 +33,11 @@ public class ProfileController : ControllerBase
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] UserUpdate updateProfileDto)
     {
+        if (updateProfileDto.FirstName.Length > 1000 || updateProfileDto.LastName.Length > 1000)
+        {
+            Response.Headers.Add("UnrestrictedConsumptionNoFieldLimit", _config["Flags:UnrestrictedConsumptionNoFieldLimit"]);
+        }
+
         var result = await _context.Database.ExecuteSqlRawAsync(@$"
             UPDATE users
             SET firstName = ""{updateProfileDto.FirstName}"", lastName = ""{updateProfileDto.LastName}""
