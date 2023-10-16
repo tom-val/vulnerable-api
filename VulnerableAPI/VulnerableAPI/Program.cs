@@ -36,6 +36,35 @@ builder.Services.AddSwaggerGen(c =>
         Description = "Very secure ledgers API"
     });
     c.SchemaFilter<SwaggerSkipPropertyFilter>();
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n
+                      Enter 'Bearer' [space] and then your token in the text input below.",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = JwtBearerDefaults.AuthenticationScheme
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id =  JwtBearerDefaults.AuthenticationScheme
+                },
+                Scheme = "apiKey",
+                Name =  JwtBearerDefaults.AuthenticationScheme,
+                In = ParameterLocation.Header,
+
+            },
+            new List<string>()
+        }
+    });
 });
 
 var validator = new JwtSecurityTokenHandler();
