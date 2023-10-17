@@ -46,9 +46,9 @@ public class LedgersController : ControllerBase
     public async Task<IActionResult> Get(Guid ledgerId)
     {
         var ledger = await _context.Ledgers
-            .Where(l => l.User.Email == User.GetEmail())
+            .Where(l => l.User.Email == User.GetEmail() && l.Id == ledgerId)
             .Select(l => MapLedger(l))
-            .FirstOrDefaultAsync(l => l.Id == ledgerId);
+            .FirstOrDefaultAsync();
 
         if (ledger is null)
         {
