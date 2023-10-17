@@ -45,6 +45,7 @@ public class ChangePasswordController : ControllerBase
     }
 
     [Authorize]
+    [ApiExplorerSettings(IgnoreApi = true)]
     [HttpPost("v1/change-password")]
     public async Task<ActionResult> Login([FromBody] UserChangePasswordOld userLogin)
     {
