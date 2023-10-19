@@ -168,7 +168,7 @@ app.Use(async (context, next) =>
 
         if (!requestConforms)
         {
-            context.Response.Headers.Add("UnrestrictedConsumptionNoRateLimiting(2)", builder.Configuration["Flags:UnrestrictedConsumptionNoRateLimiting(2)"]);
+            context.Response.Headers.Add("UnrestrictedConsumptionNoRateLimiting2", builder.Configuration["Flags:UnrestrictedConsumptionNoRateLimiting(2)"]);
         }
     }
 

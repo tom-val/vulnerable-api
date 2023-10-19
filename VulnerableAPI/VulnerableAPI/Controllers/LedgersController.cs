@@ -30,7 +30,7 @@ public class LedgersController : ControllerBase
     {
         if (perPage >  1000)
         {
-            Response.Headers.Add("UnrestrictedConsumptionPagination(1)", _config["Flags:UnrestrictedConsumptionPagination(1)"]);
+            Response.Headers.Add("UnrestrictedConsumptionPagination1", _config["Flags:UnrestrictedConsumptionPagination(1)"]);
         }
 
         return _context.Ledgers
