@@ -1,0 +1,8 @@
+services:
+  kafka:
+    container_name: vulnerable-api
+    image: public.ecr.aws/a7t7i9b7/vulnerable-api:latest
+    ports:
+      - "7005:7005"
+    environment:
+      - URLS=http://*:7005

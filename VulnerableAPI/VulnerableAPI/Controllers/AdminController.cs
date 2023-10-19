@@ -21,7 +21,7 @@ public class AdminController : ControllerBase
     public async Task<ActionResult> Login()
     {
         Response.Headers.Add("BrokenFunctionLevelAuthorization", _config["Flags:BrokenFunctionLevelAuthorization"]);
-        var users = await _context.Users.Select(u => new { u.Email, u.FirstName, u.LastName }).ToListAsync();
+        var users = await _context.Users.Select(u => new { u.Id, u.Email, u.FirstName, u.LastName }).ToListAsync();
         return Ok(users);
     }
 }
