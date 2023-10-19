@@ -56,13 +56,23 @@ public class ChangePasswordController : ControllerBase
             return NotFound("Incorrect password or user not found.");
         }
 
+        if (userLogin.Email != User.GetEmail())
+        {
+            Response.Headers.Add("ImproperInventoryManagement", _config["Flags:ImproperInventoryManagement"]);
+            return Ok();
+        }
+
         user.PasswordHash = PasswordHasher.ComputeHash(userLogin.NewPassword, user.PasswordSalt);
         await _context.SaveChangesAsync();
 
-        Response.Headers.Add("ImproperInventoryManagement", _config["Flags:ImproperInventoryManagement"]);
+        if (userLogin.Password is null)
+        {
+            Response.Headers.Add("ImproperInventoryManagement", _config["Flags:ImproperInventoryManagement"]);
+        }
+
         return Ok();
     }
 }
 
 public record UserChangePassword(string Email, string Password, [MaxLength(100)] string NewPassword);
-public record UserChangePasswordOld(string Email, [MaxLength(100)] string NewPassword);
+public record UserChangePasswordOld(string Email, string? Password, [MaxLength(100)] string NewPassword);
