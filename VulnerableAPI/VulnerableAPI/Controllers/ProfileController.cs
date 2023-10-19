@@ -35,7 +35,7 @@ public class ProfileController : ControllerBase
     {
         if (updateProfileDto.FirstName.Length > 1000 || updateProfileDto.LastName.Length > 1000)
         {
-            Response.Headers.Add("UnrestrictedConsumptionNoFieldLimit", _config["Flags:UnrestrictedConsumptionNoFieldLimit"]);
+            Response.Headers.Add("UnrestrictedConsumptionNoFieldLimit(3)", _config["Flags:UnrestrictedConsumptionNoFieldLimit(3)"]);
         }
 
         var result = await _context.Database.ExecuteSqlRawAsync(@$"

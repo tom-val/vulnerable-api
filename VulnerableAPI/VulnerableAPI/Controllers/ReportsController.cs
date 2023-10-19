@@ -36,7 +36,7 @@ public class ReportsController : ControllerBase
         var reportedUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == reportDto.ReportUserEmail);
         if (reportedUser is null)
         {
-            Response.Headers.Add("BrokenObjectPropertyAuthorizationEmail", _config["Flags:BrokenObjectPropertyAuthorizationEmail"]);
+            Response.Headers.Add("BrokenObjectPropertyAuthorizationExcessiveInformation", _config["Flags:BrokenObjectPropertyAuthorizationExcessiveInformation"]);
             return BadRequest("User does not exist in system.");
         }
 
@@ -52,7 +52,7 @@ public class ReportsController : ControllerBase
         _context.Reports.Add(report);
         await _context.SaveChangesAsync();
 
-        Response.Headers.Add("BrokenObjectPropertyAuthorizationSensitive", _config["Flags:BrokenObjectPropertyAuthorizationSensitive"]);
+        Response.Headers.Add("BrokenObjectPropertyAuthorizationExcessiveDataExposure", _config["Flags:BrokenObjectPropertyAuthorizationExcessiveDataExposure"]);
         return Ok(new { report.Id, report.ReportReason, report.ReportStatus, RportedUser = reportedUser.FirstName, LastKnownLocation = "Vilnius"});
     }
 

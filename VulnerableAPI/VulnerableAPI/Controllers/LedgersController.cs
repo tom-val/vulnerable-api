@@ -30,7 +30,7 @@ public class LedgersController : ControllerBase
     {
         if (perPage >  1000)
         {
-            Response.Headers.Add("UnrestrictedConsumptionPagination", _config["Flags:UnrestrictedConsumptionPagination"]);
+            Response.Headers.Add(" UnrestrictedConsumptionPagination(1)", _config["Flags: UnrestrictedConsumptionPagination(1)"]);
         }
 
         return _context.Ledgers
@@ -89,7 +89,7 @@ public class LedgersController : ControllerBase
 
         if (ledgerDto.BalanceLimit != 900)
         {
-            Response.Headers.Add("BrokenObjectPropertyAuthorizationField", _config["Flags:BrokenObjectPropertyAuthorizationField"]);
+            Response.Headers.Add("BrokenObjectPropertyAuthorizationInternalProperty", _config["Flags:BrokenObjectPropertyAuthorizationInternalProperty"]);
         }
 
         return Created( $"ledgers/{ledgerId}",MapLedger(ledger));
