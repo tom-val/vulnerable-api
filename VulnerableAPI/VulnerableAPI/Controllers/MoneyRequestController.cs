@@ -59,12 +59,17 @@ public class MoneyRequestController : ControllerBase
         }
 
         await using var dbContextTransaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
-        var moneyToLedger = _context.Ledgers.First(l => l.UserId == moneyRequest.RequestedById && l.Currency == moneyRequest.Currency);
-        var requestedFromLedger = _context.Ledgers.First(l => l.UserId == moneyRequest.RequestedFromId && l.Currency == moneyRequest.Currency);
+        var moneyToLedger = _context.Ledgers.FirstOrDefault(l => l.UserId == moneyRequest.RequestedById && l.Currency == moneyRequest.Currency);
+        var requestedFromLedger = _context.Ledgers.FirstOrDefault(l => l.UserId == moneyRequest.RequestedFromId && l.Currency == moneyRequest.Currency);
 
-        if (requestedFromLedger.Balance < moneyRequest.Amount)
+        if (moneyToLedger is null)
         {
-            return BadRequest($"Not enough money in currency {moneyRequest.Currency} to send money");
+            return BadRequest($"Cannot send money to non existing {moneyRequest.Currency} ledger.");
+        }
+
+        if (requestedFromLedger?.Balance < moneyRequest.Amount || requestedFromLedger is null)
+        {
+            return BadRequest($"Not enough money in currency {moneyRequest.Currency} to send money.");
         }
 
         requestedFromLedger.Balance -= moneyRequest.Amount;
