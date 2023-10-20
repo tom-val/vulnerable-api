@@ -39,9 +39,9 @@ public class ProfileController : ControllerBase
         }
 
         var result = await _context.Database.ExecuteSqlRawAsync(@$"
-            UPDATE users
-            SET firstName = ""{updateProfileDto.FirstName}"", lastName = ""{updateProfileDto.LastName}""
-            WHERE email = ""{User.GetEmail()}""");
+            UPDATE ""Users"" u
+            SET ""FirstName"" = '{updateProfileDto.FirstName}', ""LastName"" = '{updateProfileDto.LastName}'
+            WHERE u.""Email"" = '{User.GetEmail()}'");
 
         await _context.SaveChangesAsync();
 

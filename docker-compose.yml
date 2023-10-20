@@ -1,7 +1,7 @@
 services:
   kafka:
     container_name: vulnerable-api
-    image: public.ecr.aws/a7t7i9b7/vulnerable-api:latest
+    image: public.ecr.aws/a7t7i9b7/vulnerable-api@sha256:477cf77fe4e1ea507f201b18746980f82f8593becdda874432e12b99b21eda47
     ports:
       - "7005:7005"
     environment:
