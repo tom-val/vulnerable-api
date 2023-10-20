@@ -8,16 +8,16 @@ namespace VulnerableAPI.Database;
 public class AdminDbContext : DbContext
 {
     public DbSet<User> Users { get; set; }
-    public string DatabasesLocation { get; }
+    public DatabaseOptions DatabaseOptions { get; }
 
-    public AdminDbContext(IOptions<SqliteOptions> options)
+    public AdminDbContext(IOptions<DatabaseOptions> options)
     {
-        DatabasesLocation = options.Value.DatabasesLocation;
+        DatabaseOptions = options.Value;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        options.UseSqlite($"Data Source={Path.Join(DatabasesLocation, "admin.db")}");
+        options.UseNpgsql(DatabaseOptions.ConnectionString("admin"));
     }
 
     protected override void OnModelCreating(ModelBuilder builder)

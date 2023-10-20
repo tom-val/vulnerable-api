@@ -17,18 +17,20 @@ public class UserDbContext : DbContext
     public DbSet<Report> Reports { get; set; }
     public DbSet<Referral> Referrals { get; set; }
     private IHttpContextAccessor? _httpContextAccessor { get; }
-    public string DatabasesLocation { get; }
     private Guid? _userId { get; set; }
 
-    public UserDbContext(IOptions<SqliteOptions> options, IHttpContextAccessor httpContextAccessor)
+
+    public DatabaseOptions DatabaseOptions { get; }
+
+    public UserDbContext(IOptions<DatabaseOptions> options, IHttpContextAccessor httpContextAccessor)
     {
-        DatabasesLocation = options.Value.DatabasesLocation;
+        DatabaseOptions = options.Value;
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public UserDbContext(IOptions<SqliteOptions> options, Guid userId)
+    public UserDbContext(IOptions<DatabaseOptions> options, Guid userId)
     {
-        DatabasesLocation = options.Value.DatabasesLocation;
+        DatabaseOptions = options.Value;
         _userId = userId;
     }
 
@@ -40,15 +42,15 @@ public class UserDbContext : DbContext
             var claim = _httpContextAccessor!.HttpContext?.User.Claims.First(x => x.Type == "please_do_not_change_thanks");
             var valueBytes = Convert.FromBase64String(claim.Value);
             var userId = Encoding.UTF8.GetString(valueBytes);
-            options.UseSqlite($"Data Source={Path.Join(DatabasesLocation, $"{userId}.db")}");
+            options.UseNpgsql(DatabaseOptions.ConnectionString(userId));
         }
         else if (_userId.HasValue)
         {
-            options.UseSqlite($"Data Source={Path.Join(DatabasesLocation, $"{_userId}.db")}");
+            options.UseNpgsql(DatabaseOptions.ConnectionString(_userId.ToString()));
         }
         else
         {
-            options.UseSqlite($"Data Source={Path.Join(DatabasesLocation, "temp_db_for_migrations.db")}");
+            options.UseNpgsql(DatabaseOptions.ConnectionString("temp_db_for_migrations"));
         }
     }
 

@@ -15,9 +15,9 @@ public class RegisterController : ControllerBase
 {
     private readonly IConfiguration _config;
     private readonly AdminDbContext _context;
-    private readonly IOptions<SqliteOptions> _options;
+    private readonly IOptions<DatabaseOptions> _options;
 
-    public RegisterController(AdminDbContext context, IConfiguration config, IOptions<SqliteOptions> options)
+    public RegisterController(AdminDbContext context, IConfiguration config, IOptions<DatabaseOptions> options)
     {
         _config = config;
         _context = context;

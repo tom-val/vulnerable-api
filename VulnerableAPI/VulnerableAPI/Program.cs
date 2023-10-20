@@ -108,11 +108,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         }
     };
 });
-builder.Services.Configure<SqliteOptions>(builder.Configuration.GetSection(SqliteOptions.ConfigSection));
+builder.Services.Configure<DatabaseOptions>(builder.Configuration.GetSection(DatabaseOptions.ConfigSection));
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddEntityFrameworkSqlite()
-    .AddDbContext<UserDbContext>()
-    .AddDbContext<AdminDbContext>();
+
+var dbOptions = builder.Configuration
+    .GetSection(DatabaseOptions.ConfigSection)
+    .Get<DatabaseOptions>();
+
+builder.Services.AddDbContext<AdminDbContext>()
+    .AddDbContext<UserDbContext>();
 builder.Services.AddDirectoryBrowser();
 
 var app = builder.Build();

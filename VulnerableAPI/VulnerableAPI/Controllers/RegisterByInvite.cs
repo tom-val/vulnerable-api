@@ -14,9 +14,9 @@ public class RegisterByInviteController : ControllerBase
 {
 
     private readonly AdminDbContext _context;
-    private readonly IOptions<SqliteOptions> _options;
+    private readonly IOptions<DatabaseOptions> _options;
 
-    public RegisterByInviteController(AdminDbContext context, IOptions<SqliteOptions> options)
+    public RegisterByInviteController(AdminDbContext context, IOptions<DatabaseOptions> options)
     {
         _context = context;
         _options = options;
